@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
@@ -73,6 +72,7 @@ export default function NewDeliveryChallans() {
   const [selectedChallanProfileId, setSelectedChallanProfileId] = useState<string | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [subCategoriesMap, setSubCategoriesMap] = useState<{ [categoryId: string]: SubCategory[] }>({});
+  const [quantityDrafts, setQuantityDrafts] = useState<{ [key: number]: string }>({});
   const [equipmentCategoryOpen, setEquipmentCategoryOpen] = useState<{ [key: number]: boolean }>({});
   const [equipmentCategorySearch, setEquipmentCategorySearch] = useState<{ [key: number]: string }>({});
   const [equipmentSubCategoryOpen, setEquipmentSubCategoryOpen] = useState<{ [key: number]: boolean }>({});
@@ -1569,24 +1569,31 @@ export default function NewDeliveryChallans() {
                       </div>
                       <div className="space-y-1 sm:space-y-2">
                         <Label htmlFor={`eq-qty-${index}`} className="text-sm sm:text-base font-medium">Quantity *</Label>
-                        <Select
-                          value={eq.quantity.toString()}
-                          onValueChange={(value) => {
-                            clearFieldError(`equipment-${index}-quantity`);
-                            updateEquipment(index, "quantity", parseInt(value));
+                        <Input
+                          id={`eq-qty-${index}`}
+                          type="number"
+                          inputMode="numeric"
+                          min={1}
+                          placeholder="Enter quantity"
+                          value={quantityDrafts[index] ?? eq.quantity}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            setQuantityDrafts((prev) => ({ ...prev, [index]: raw }));
+                            const parsed = parseInt(raw, 10);
+                            if (!Number.isNaN(parsed) && parsed >= 1) {
+                              clearFieldError(`equipment-${index}-quantity`);
+                              updateEquipment(index, "quantity", parsed);
+                            }
                           }}
-                        >
-                          <SelectTrigger id={`eq-qty-${index}`} className={cn("h-10", hasFieldError(`equipment-${index}-quantity`))}>
-                            <SelectValue placeholder="Select quantity" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
-                              <SelectItem key={num} value={num.toString()}>
-                                {num}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          onBlur={() =>
+                            setQuantityDrafts((prev) => {
+                              const next = { ...prev };
+                              delete next[index];
+                              return next;
+                            })
+                          }
+                          className={cn("h-10", hasFieldError(`equipment-${index}-quantity`))}
+                        />
                       </div>
 
                     {/* Serial Numbers - Dynamic based on Quantity */}
