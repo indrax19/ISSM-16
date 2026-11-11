@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
@@ -1569,24 +1568,21 @@ export default function NewDeliveryChallans() {
                       </div>
                       <div className="space-y-1 sm:space-y-2">
                         <Label htmlFor={`eq-qty-${index}`} className="text-sm sm:text-base font-medium">Quantity *</Label>
-                        <Select
-                          value={eq.quantity.toString()}
-                          onValueChange={(value) => {
+                        <Input
+                          id={`eq-qty-${index}`}
+                          type="number"
+                          inputMode="numeric"
+                          min={1}
+                          placeholder="Enter quantity"
+                          value={eq.quantity}
+                          onChange={(e) => {
+                            const parsed = parseInt(e.target.value, 10);
+                            if (Number.isNaN(parsed) || parsed < 1) return;
                             clearFieldError(`equipment-${index}-quantity`);
-                            updateEquipment(index, "quantity", parseInt(value));
+                            updateEquipment(index, "quantity", parsed);
                           }}
-                        >
-                          <SelectTrigger id={`eq-qty-${index}`} className={cn("h-10", hasFieldError(`equipment-${index}-quantity`))}>
-                            <SelectValue placeholder="Select quantity" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
-                              <SelectItem key={num} value={num.toString()}>
-                                {num}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          className={cn("h-10", hasFieldError(`equipment-${index}-quantity`))}
+                        />
                       </div>
 
                     {/* Serial Numbers - Dynamic based on Quantity */}
