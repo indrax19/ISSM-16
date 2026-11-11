@@ -72,6 +72,7 @@ export default function NewDeliveryChallans() {
   const [selectedChallanProfileId, setSelectedChallanProfileId] = useState<string | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [subCategoriesMap, setSubCategoriesMap] = useState<{ [categoryId: string]: SubCategory[] }>({});
+  const [quantityDrafts, setQuantityDrafts] = useState<{ [key: number]: string }>({});
   const [equipmentCategoryOpen, setEquipmentCategoryOpen] = useState<{ [key: number]: boolean }>({});
   const [equipmentCategorySearch, setEquipmentCategorySearch] = useState<{ [key: number]: string }>({});
   const [equipmentSubCategoryOpen, setEquipmentSubCategoryOpen] = useState<{ [key: number]: boolean }>({});
@@ -1574,13 +1575,23 @@ export default function NewDeliveryChallans() {
                           inputMode="numeric"
                           min={1}
                           placeholder="Enter quantity"
-                          value={eq.quantity}
+                          value={quantityDrafts[index] ?? eq.quantity}
                           onChange={(e) => {
-                            const parsed = parseInt(e.target.value, 10);
-                            if (Number.isNaN(parsed) || parsed < 1) return;
-                            clearFieldError(`equipment-${index}-quantity`);
-                            updateEquipment(index, "quantity", parsed);
+                            const raw = e.target.value;
+                            setQuantityDrafts((prev) => ({ ...prev, [index]: raw }));
+                            const parsed = parseInt(raw, 10);
+                            if (!Number.isNaN(parsed) && parsed >= 1) {
+                              clearFieldError(`equipment-${index}-quantity`);
+                              updateEquipment(index, "quantity", parsed);
+                            }
                           }}
+                          onBlur={() =>
+                            setQuantityDrafts((prev) => {
+                              const next = { ...prev };
+                              delete next[index];
+                              return next;
+                            })
+                          }
                           className={cn("h-10", hasFieldError(`equipment-${index}-quantity`))}
                         />
                       </div>
