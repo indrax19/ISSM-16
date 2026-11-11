@@ -35,6 +35,7 @@ export default function Projects() {
   const [projectType, setProjectType] = useState<"ISSM" | "Obsidian">("ISSM");
   const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userSearchTerm, setUserSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"ISSM" | "Obsidian">("ISSM");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<any>(null);
@@ -288,6 +289,7 @@ export default function Projects() {
     setDescription(project.description || "");
     setProjectType((project as any).projectType || "ISSM");
     setAssignedUsers(project.assignedUsers || []);
+    setUserSearchTerm("");
     setIconPreview(project.projectIconUrl || "");
     setSelectedIconFile(null);
     setDialogOpen(true);
@@ -299,6 +301,7 @@ export default function Projects() {
     setDescription("");
     setProjectType(activeTab);
     setAssignedUsers([]);
+    setUserSearchTerm("");
     setSelectedIconFile(null);
     setIconPreview("");
     setDialogOpen(true);
@@ -309,6 +312,10 @@ export default function Projects() {
       prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
   };
+
+  const filteredUsers = allUsers.filter((user) =>
+    (user.email || "").toLowerCase().includes(userSearchTerm.trim().toLowerCase())
+  );
 
   const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -723,9 +730,16 @@ export default function Projects() {
             {isAdmin && (
               <div className="space-y-2">
                 <Label>Assign Users</Label>
+                <Input
+                  type="search"
+                  placeholder="Search users by email..."
+                  value={userSearchTerm}
+                  onChange={(e) => setUserSearchTerm(e.target.value)}
+                  className="h-9"
+                />
                 <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
-                  {allUsers && allUsers.length > 0 ? (
-                    allUsers.map((user) => (
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
                       <div key={user.id} className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -740,7 +754,7 @@ export default function Projects() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-slate-600">No users available</p>
+                    <p className="text-sm text-slate-600">{allUsers.length > 0 ? "No users match your search" : "No users available"}</p>
                   )}
                 </div>
                 <p className="text-xs text-slate-500 mt-2">
