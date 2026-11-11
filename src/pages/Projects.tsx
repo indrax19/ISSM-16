@@ -695,15 +695,29 @@ export default function Projects() {
             <DialogTitle>{editId ? "Edit Project" : "New Project"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Project Name *</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. New Factory Setup"
-                maxLength={100}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Project Name *</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. New Factory Setup"
+                  maxLength={100}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="projectType">Project Type *</Label>
+                <select
+                  id="projectType"
+                  value={projectType}
+                  onChange={(e) => setProjectType(e.target.value as "ISSM" | "Obsidian")}
+                  className="h-10 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  <option value="ISSM">ISSM</option>
+                  <option value="Obsidian">Obsidian</option>
+                </select>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="desc">Description (optional)</Label>
@@ -714,18 +728,6 @@ export default function Projects() {
                 placeholder="Brief description of the project"
                 maxLength={500}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="projectType">Project Type *</Label>
-              <select
-                id="projectType"
-                value={projectType}
-                onChange={(e) => setProjectType(e.target.value as "ISSM" | "Obsidian")}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                <option value="ISSM">ISSM</option>
-                <option value="Obsidian">Obsidian</option>
-              </select>
             </div>
             {isAdmin && (
               <div className="space-y-2">
