@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -37,8 +37,10 @@ const issueSchema = z.object({
 export default function SubCategoryDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { isAdmin, appUser } = useAuth();
+  const highlightSerial = searchParams.get("serial") || "";
 
   // Add item states
   const [addOpen, setAddOpen] = useState(false);
@@ -159,6 +161,14 @@ export default function SubCategoryDetail() {
       itemsUnsubRef.current?.();
     };
   }, [id]);
+
+  useEffect(() => {
+    if (highlightSerial) setFilter(highlightSerial);
+  }, [highlightSerial]);
+
+  const scrollToHighlightedRow = useCallback((row: HTMLTableRowElement | null) => {
+    row?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -572,7 +582,11 @@ export default function SubCategoryDetail() {
               </TableHeader>
               <TableBody>
                 {filtered.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-muted/50 transition-colors">
+                  <TableRow
+                    key={item.id}
+                    ref={highlightSerial && item.serial_number === highlightSerial ? scrollToHighlightedRow : undefined}
+                    className={`hover:bg-muted/50 transition-colors ${highlightSerial && item.serial_number === highlightSerial ? "bg-primary/10 ring-2 ring-inset ring-primary" : ""}`}
+                  >
                     <TableCell className="font-mono text-sm font-semibold">
                       {item.serial_number || "—"}
                     </TableCell>

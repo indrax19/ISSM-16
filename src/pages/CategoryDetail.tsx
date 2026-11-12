@@ -275,7 +275,15 @@ export default function CategoryDetail() {
               </TableHeader>
               <TableBody>
                 {filteredItems.map((item) => (
-                  <TableRow key={item.id}>
+                  <TableRow
+                    key={item.id}
+                    className={item.subcategory_id ? "cursor-pointer hover:bg-muted/50" : undefined}
+                    onClick={
+                      item.subcategory_id
+                        ? () => navigate(`/subcategories/${item.subcategory_id}?serial=${encodeURIComponent(item.serial_number || "")}`)
+                        : undefined
+                    }
+                  >
                     <TableCell className="font-mono text-sm">{item.serial_number || "—"}</TableCell>
                     <TableCell className="text-sm">{item.subcategory_id ? subCategoryNames.get(item.subcategory_id) || "—" : "No Sub Category"}</TableCell>
                     <TableCell>
@@ -331,50 +339,71 @@ export default function CategoryDetail() {
 
       {/* Sub Categories List */}
       {visibleSubCategories.length > 0 ? (
-        <div className="space-y-3">
+        <div className="grid gap-3 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {visibleSubCategories.map((subCat) => {
             const subCatItems = getSubCategoryItems(subCat.id!);
-            const isExpanded = expandedSubCategories.has(subCat.id!);
 
             return (
-              <Card key={subCat.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div
-                      className="flex items-center gap-3 flex-1 cursor-pointer"
-                      onClick={() => navigate(`/subcategories/${subCat.id}`)}
-                    >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
-                        <Layers className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-sm">{subCat.name}</h3>
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mt-0.5">
+              <Card
+                key={subCat.id}
+                className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1 active:shadow-md active:translate-y-0 group relative overflow-hidden"
+                onClick={() => navigate(`/subcategories/${subCat.id}`)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <CardHeader className="flex flex-row items-start justify-between pb-2 sm:pb-3 p-3 sm:p-4 relative z-10">
+                  <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                    <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg flex-shrink-0 bg-primary/10 text-primary transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-400 group-hover:to-blue-600 group-hover:text-white">
+                      <Layers className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <CardTitle className="text-sm sm:text-base truncate transition-colors duration-300 group-hover:text-primary">
+                        {subCat.name}
+                      </CardTitle>
+                      {(subCat.model_no || subCat.supplier_name) && (
+                        <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground mt-0.5 sm:mt-1">
                           {subCat.model_no && <span>Model: {subCat.model_no}</span>}
                           {subCat.supplier_name && <span>Supplier: {subCat.supplier_name}</span>}
                         </div>
-                        {subCat.description && (
-                          <p className="text-xs text-muted-foreground mt-1">{subCat.description}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                      <Badge variant="secondary">{subCatItems.length} items</Badge>
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">{getAvailableStock(subCat.id!)} available</Badge>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:bg-blue-50 hover:text-blue-700" onClick={() => openEditSubCat(subCat)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
-                        onClick={() => handleDeleteSubCat(subCat.id!)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      )}
+                      {subCat.description && (
+                        <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1 line-clamp-2 group-hover:text-muted-foreground/80 transition-colors duration-300">
+                          {subCat.description}
+                        </p>
+                      )}
                     </div>
                   </div>
+                  <div className="flex gap-1 flex-shrink-0 ml-1 sm:ml-2" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 sm:h-8 sm:w-8 text-blue-600 hover:bg-blue-100 hover:text-blue-700 active:scale-95 transition-all duration-150"
+                      onClick={() => openEditSubCat(subCat)}
+                      title="Edit sub category"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 sm:h-8 sm:w-8 text-red-600 hover:bg-red-100 hover:text-red-700 active:scale-95 transition-all duration-150"
+                      onClick={() => handleDeleteSubCat(subCat.id!)}
+                      title="Delete sub category"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </CardHeader>
+                <CardContent className="space-y-2 sm:space-y-3 border-t pt-2 sm:pt-3 p-3 sm:p-4 relative z-10">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6 gap-2 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2 transition-colors duration-300 group-hover:text-primary">
+                      <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-foreground" />
+                      <span className="font-medium text-foreground">{subCatItems.length} items</span>
+                    </div>
+                    <div className="flex items-center gap-2 transition-colors duration-300 group-hover:text-primary">
+                      <span className="font-medium text-green-700">{getAvailableStock(subCat.id!)} available</span>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             );
           })}

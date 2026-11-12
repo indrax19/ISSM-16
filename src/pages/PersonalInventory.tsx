@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { personsAPI, personItemsAPI } from "@/integrations/firebase/firestore";
+import { personsAPI, personItemsAPI, personSitesAPI } from "@/integrations/firebase/firestore";
 import { usersAPI, type User } from "@/integrations/firebase/usersAPI";
-import { realtimePersonsAPI, realtimePersonItemsAPI } from "@/integrations/firebase/realtimeAPI";
+import { realtimePersonsAPI, realtimePersonItemsAPI, realtimePersonSitesAPI } from "@/integrations/firebase/realtimeAPI";
 import { useFirestoreRealtimeQuery } from "@/hooks/useFirestoreRealtimeQuery";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,11 @@ export default function PersonalInventory() {
     (callback) => realtimePersonItemsAPI.subscribeAll(callback)
   );
 
+  useFirestoreRealtimeQuery(
+    ["person_sites"],
+    (callback) => realtimePersonSitesAPI.subscribeAll(callback)
+  );
+
   // Subscribe to users for assignment
   useEffect(() => {
     usersUnsubRef.current = usersAPI.subscribeAll((users) => {
@@ -73,6 +78,18 @@ export default function PersonalInventory() {
     },
     staleTime: Infinity, // Data is kept fresh by real-time subscription
   });
+
+  const { data: allPersonSites } = useQuery({
+    queryKey: ["person_sites"],
+    queryFn: async () => {
+      return await personSitesAPI.getAll();
+    },
+    staleTime: Infinity, // Data is kept fresh by real-time subscription
+  });
+
+  const getPersonSiteCount = (personId: string) => {
+    return allPersonSites?.filter((site) => site.person_id === personId).length || 0;
+  };
 
   const getPersonItemCount = (personId: string) => {
     return allPersonItems?.filter((item: any) => item.person_id === personId && item.quantity > 0).length || 0;
@@ -161,11 +178,9 @@ export default function PersonalInventory() {
 
   // Calculate statistics for dashboard
   const totalPersons = persons?.length ?? 0;
-  const totalItems = allPersonItems?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) ?? 0;
 
   const statsCards = [
     { label: "Total Persons", value: totalPersons, icon: Users, color: "text-primary" },
-    { label: "Total Items", value: totalItems, icon: Package, color: "text-success" },
   ];
 
   const handleDeletePerson = (personId: string) => {
@@ -259,9 +274,15 @@ export default function PersonalInventory() {
                     <Package className="h-4 w-4" />
                     <span>{getPersonItemCount(person.id)} items</span>
                   </div>
-                  <div className="text-sm font-medium">
-                    <span className="text-muted-foreground">Total Quantity: </span>
-                    <span className="text-foreground">{getPersonTotalQuantity(person.id)} units</span>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-medium">
+                    <div>
+                      <span className="text-muted-foreground">Total Quantity: </span>
+                      <span className="text-foreground">{getPersonTotalQuantity(person.id)} units</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Assign Site : </span>
+                      <span className="text-foreground">{getPersonSiteCount(person.id)}</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
