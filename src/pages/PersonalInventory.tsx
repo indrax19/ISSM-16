@@ -178,11 +178,9 @@ export default function PersonalInventory() {
 
   // Calculate statistics for dashboard
   const totalPersons = persons?.length ?? 0;
-  const totalItems = allPersonItems?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) ?? 0;
 
   const statsCards = [
     { label: "Total Persons", value: totalPersons, icon: Users, color: "text-primary" },
-    { label: "Total Items", value: totalItems, icon: Package, color: "text-success" },
   ];
 
   const handleDeletePerson = (personId: string) => {
