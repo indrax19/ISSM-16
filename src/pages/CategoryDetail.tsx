@@ -275,7 +275,15 @@ export default function CategoryDetail() {
               </TableHeader>
               <TableBody>
                 {filteredItems.map((item) => (
-                  <TableRow key={item.id}>
+                  <TableRow
+                    key={item.id}
+                    className={item.subcategory_id ? "cursor-pointer hover:bg-muted/50" : undefined}
+                    onClick={
+                      item.subcategory_id
+                        ? () => navigate(`/subcategories/${item.subcategory_id}?serial=${encodeURIComponent(item.serial_number || "")}`)
+                        : undefined
+                    }
+                  >
                     <TableCell className="font-mono text-sm">{item.serial_number || "—"}</TableCell>
                     <TableCell className="text-sm">{item.subcategory_id ? subCategoryNames.get(item.subcategory_id) || "—" : "No Sub Category"}</TableCell>
                     <TableCell>
