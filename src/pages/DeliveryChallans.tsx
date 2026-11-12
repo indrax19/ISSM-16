@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { challanAPI, Challan, ChallanType } from "@/integrations/firebase/challanAPI";
 import { companyProfileAPI, CompanyProfile } from "@/integrations/firebase/firestore";
@@ -51,6 +51,11 @@ export default function DeliveryChallans() {
   const ITEMS_PER_PAGE = 10;
   const activeTab: ChallanType = searchParams.get("type") === "internal" ? "internal" : "external";
   const activeTabLabel = activeTab === "internal" ? "Internal" : "External";
+
+  // The window is the scroll container here; <main> is not height-constrained.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Subscribe to real-time updates on mount
   useEffect(() => {

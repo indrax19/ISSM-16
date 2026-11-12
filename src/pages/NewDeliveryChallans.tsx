@@ -596,7 +596,6 @@ export default function NewDeliveryChallans() {
 
       if (isMountedRef.current) {
         queryClient.invalidateQueries({ queryKey: ["challans"] });
-        document.querySelector("main")?.scrollTo({ top: 0, behavior: "auto" });
         toast.success(id ? "Challan updated successfully" : "Challan created successfully");
         setShowSuccess(true);
         // Redirect to delivery challans list after 1.5 seconds
