@@ -276,13 +276,15 @@ export default function PersonalInventory() {
                     <Package className="h-4 w-4" />
                     <span>{getPersonItemCount(person.id)} items</span>
                   </div>
-                  <div className="text-sm font-medium">
-                    <span className="text-muted-foreground">Total Quantity: </span>
-                    <span className="text-foreground">{getPersonTotalQuantity(person.id)} units</span>
-                  </div>
-                  <div className="text-sm font-medium">
-                    <span className="text-muted-foreground">Assign Site : </span>
-                    <span className="text-foreground">{getPersonSiteCount(person.id)}</span>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-medium">
+                    <div>
+                      <span className="text-muted-foreground">Total Quantity: </span>
+                      <span className="text-foreground">{getPersonTotalQuantity(person.id)} units</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Assign Site : </span>
+                      <span className="text-foreground">{getPersonSiteCount(person.id)}</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
