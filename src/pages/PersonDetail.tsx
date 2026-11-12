@@ -95,6 +95,10 @@ export default function PersonDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [issuedItems, setIssuedItems] = useState<any[]>([]);
   const [sites, setSites] = useState<any[]>([]);
+  const [siteFilter, setSiteFilter] = useState("");
+  const filteredSites = sites.filter((site) =>
+    (site.site_name || "").toLowerCase().includes(siteFilter.trim().toLowerCase())
+  );
 
   // Realtime subscriptions
   useEffect(() => {
@@ -647,8 +651,14 @@ export default function PersonDetail() {
         </TabsContent>
 
         <TabsContent value="sites" className="space-y-4">
-          <div className="flex justify-end">
-            <Button onClick={() => setAddSiteOpen(true)} className="gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Input
+              placeholder="Search by site name..."
+              value={siteFilter}
+              onChange={(e) => setSiteFilter(e.target.value)}
+              className="w-full sm:max-w-sm"
+            />
+            <Button onClick={() => setAddSiteOpen(true)} className="w-full gap-2 sm:w-auto">
               <Plus className="h-4 w-4" /> Add Site
             </Button>
           </div>
@@ -671,9 +681,16 @@ export default function PersonDetail() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sites.map((site, index) => (
+                    {filteredSites.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={9} className="py-8 text-center text-sm text-muted-foreground">
+                          No sites match "{siteFilter}"
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {filteredSites.map((site, index) => (
                       <TableRow key={site.id} className={`${PERSON_SITE_STATUS_ROW_CLASSES[site.status as (typeof PERSON_SITE_STATUSES)[number]] || "bg-background hover:bg-muted/50"} transition-colors`}>
-                        <TableCell className="text-muted-foreground">{sites.length - index}</TableCell>
+                        <TableCell className="text-muted-foreground">{filteredSites.length - index}</TableCell>
                         <TableCell className="font-medium">{site.site_name}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{site.location || "—"}</TableCell>
                         <TableCell>
