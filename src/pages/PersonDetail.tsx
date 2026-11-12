@@ -279,7 +279,9 @@ export default function PersonDetail() {
         ...(parsed.poc_contact ? { poc_contact: parsed.poc_contact } : {}),
         ...(parsed.location ? { location: parsed.location } : {}),
         scheduled_date: siteStatus === "Scheduled" ? parsed.scheduled_date || "" : "",
-        completed_date: siteStatus === "Completed" ? currentSite?.completed_date || "" : "",
+        completed_date: siteStatus === "Completed"
+          ? currentSite?.status === "Completed" ? currentSite?.completed_date || "" : format(new Date(), "yyyy-MM-dd")
+          : "",
         ...(currentSite && currentSite.status !== parsed.status ? {
           status_history: [
             ...(currentSite?.status_history || []),
@@ -337,7 +339,7 @@ export default function PersonDetail() {
         status,
         status_history: [...(currentSite?.status_history || []), historyEntry],
         ...(status === "Scheduled" ? {} : { scheduled_date: "" }),
-        ...(status === "Completed" ? {} : { completed_date: "" }),
+        completed_date: status === "Completed" ? format(new Date(), "yyyy-MM-dd") : "",
       });
     },
     onSuccess: () => toast.success("Site status updated"),
